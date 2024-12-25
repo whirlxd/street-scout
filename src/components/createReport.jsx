@@ -92,8 +92,8 @@ export default function NewReport() {
 		setSeverity(null);
 		setImage();
 		setLoading(false);
-		window.location.href = "/";
-		window.location.reload();
+
+		window.location.href = "/"; // this does not work as it just reloads to the same page
 	};
 	return (
 		<div className="min-h-screen bg-[#0F172A] text-white px-4 overflow-y-auto">
