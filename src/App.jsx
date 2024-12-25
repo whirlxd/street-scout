@@ -7,7 +7,7 @@ import NearMap from "./components/map-page";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: uh
 	useEffect(() => {
 		const isLoggedIn = sessionStorage.getItem("isLoggedIn");
 		if (isLoggedIn) {
