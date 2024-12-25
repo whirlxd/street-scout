@@ -1,0 +1,12 @@
+{
+	"appId": "com.streetscout.app",
+	"appName": "Street Scout",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0,
+			"autoHide": true
+		}
+	}
+}

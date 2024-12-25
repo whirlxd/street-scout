@@ -1,0 +1,10 @@
+/* custom-marker.css */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-marker svg {
+  pointer-events: none; /* Ensure the SVG doesn't intercept mouse events */
+}
