@@ -1,62 +1,69 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Camera, Maximize2 } from "lucide-react";
-import "aframe";
+import React, { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
-// Mock data for reports
+// Import A-Frame and AR.js
+import "aframe";
+import "aframe-ar";
+
 const MOCK_REPORTS = [
 	{
 		id: 1,
 		title: "Broken Sidewalk",
 		severity: "high",
 		distance: 50,
-		position: "-2 1.5 -5",
+		lat: 35.6895,
+		lon: 139.6917,
 	},
 	{
 		id: 2,
 		title: "Graffiti",
 		severity: "medium",
 		distance: 100,
-		position: "0 1.5 -5",
+		lat: 35.6897,
+		lon: 139.6922,
 	},
 	{
 		id: 3,
 		title: "Pothole",
 		severity: "high",
 		distance: 150,
-		position: "2 1.5 -5",
+		lat: 35.69,
+		lon: 139.6925,
 	},
 	{
 		id: 4,
 		title: "Fallen Tree",
 		severity: "medium",
 		distance: 200,
-		position: "4 1.5 -5",
+		lat: 35.6892,
+		lon: 139.693,
 	},
 ];
 
-function ARView() {
+const ARView = () => {
 	const [reports] = useState(MOCK_REPORTS);
-	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [aframeLoaded, setAframeLoaded] = useState(false);
 
 	useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullscreen(!!document.fullscreenElement);
-		};
-
-		document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-		return () => {
-			document.removeEventListener("fullscreenchange", handleFullscreenChange);
-		};
-	}, []);
-
-	const toggleFullscreen = () => {
-		if (!document.fullscreenElement) {
-			document.documentElement.requestFullscreen();
-		} else {
-			document.exitFullscreen();
+		if (typeof AFRAME !== "undefined" && !AFRAME.components["text-geometry"]) {
+			AFRAME.registerComponent("text-geometry", {
+				schema: {
+					value: { type: "string", default: "" },
+				},
+				init: function () {
+					const text = document.createElement("a-text");
+					text.setAttribute("value", this.data.value);
+					text.setAttribute("align", "center");
+					text.setAttribute("position", "0 -0.5 0");
+					text.setAttribute("scale", "0.5 0.5 0.5");
+					text.setAttribute("color", "#FFFFFF");
+					this.el.appendChild(text);
+				},
+			});
 		}
-	};
+		setAframeLoaded(true);
+	}, []);
 
 	const getSeverityColor = (severity) => {
 		switch (severity) {
@@ -72,53 +79,46 @@ function ARView() {
 	return (
 		<div className="min-h-screen bg-[#0F172A] flex flex-col">
 			{/* Header */}
-			<div className="bg-[#1E293B] p-4 flex items-center justify-between">
-				<a href="/" className="text-white">
+			<div className="bg-[#1E293B] p-4 flex items-center justify-between z-10">
+				<Link to="/" className="text-white">
 					<ArrowLeft className="w-6 h-6" />
-				</a>
+				</Link>
 				<h1 className="text-xl font-semibold text-white">AR View</h1>
-				<button onClick={toggleFullscreen} className="text-white">
-					<Maximize2 className="w-6 h-6" />
-				</button>
+				<div className="w-6 h-6"></div>
 			</div>
 
-			{/* AR View */}
-			<div
-				className={`flex-1 relative ${isFullscreen ? "fixed inset-0 z-50" : ""}`}
-			>
-				<a-scene embedded vr-mode-ui="enabled: false">
-					<a-camera position="0 1.6 0"></a-camera>
-					<a-sky color="#0F172A"></a-sky>
-					{reports.map((report) => (
-						<a-entity key={report.id} position={report.position}>
-							<a-sphere
-								radius="0.2"
-								color={getSeverityColor(report.severity)}
-							></a-sphere>
-							<a-text
-								value={`${report.title}\n${report.distance}m`}
-								align="center"
-								color="#FFFFFF"
-								position="0 0.5 0"
-								scale="0.5 0.5 0.5"
-							></a-text>
-						</a-entity>
-					))}
-				</a-scene>
-				{!isFullscreen && (
-					<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-						<Camera className="w-16 h-16 text-white opacity-50" />
-					</div>
+			{/* AR Scene */}
+			<div className="relative flex-1">
+				{aframeLoaded && (
+					<a-scene
+						embedded
+						arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+						vr-mode-ui="enabled: false"
+					>
+						<a-camera gps-camera rotation-reader></a-camera>
+						{reports.map((report) => (
+							<a-entity
+								key={report.id}
+								gps-entity-place={`latitude: ${report.lat}; longitude: ${report.lon};`}
+							>
+								<a-sphere
+									radius="0.5"
+									material={`color: ${getSeverityColor(report.severity)}; opacity: 0.8;`}
+								></a-sphere>
+								<a-entity text-geometry={`value: ${report.title}`}></a-entity>
+							</a-entity>
+						))}
+					</a-scene>
 				)}
 			</div>
 
 			{/* Instructions */}
-			<div className="bg-[#1E293B] p-4 text-white text-center">
+			<div className="bg-[#1E293B] p-4 text-white text-center z-10">
 				<p>Move your device to look around and see nearby reports</p>
 			</div>
 
 			{/* Reports List */}
-			<div className="bg-[#1E293B] p-4 space-y-2 max-h-48 overflow-y-auto">
+			<div className="bg-[#1E293B] p-4 space-y-2 max-h-48 overflow-y-auto z-10">
 				<h2 className="mb-2 font-semibold text-white">Nearby Reports</h2>
 				{reports.map((report) => (
 					<div
@@ -146,16 +146,19 @@ function ARView() {
 			</div>
 
 			{/* Bottom Navigation */}
-			<nav className="bg-[#1E293B] px-4 py-3 flex justify-around items-center">
-				<a href="/" className="text-[#06B6D4] flex flex-col items-center gap-1">
+			<nav className="bg-[#1E293B] px-4 py-3 flex justify-around items-center z-10">
+				<Link
+					to="/"
+					className="text-[#06B6D4] flex flex-col items-center gap-1"
+				>
 					<span className="text-sm">Home</span>
-				</a>
-				<a href="/ar" className="flex flex-col items-center gap-1 text-white">
+				</Link>
+				<Link to="/ar" className="flex flex-col items-center gap-1 text-white">
 					<span className="text-sm">AR View</span>
-				</a>
+				</Link>
 			</nav>
 		</div>
 	);
-}
+};
 
 export default ARView;

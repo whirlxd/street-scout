@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "../clients/supabase";
 import { Camera, ArrowLeft, MapPin } from "lucide-react";
-
+import OfflinePopup from "./offline-popup";
 export default function NewReport() {
 	const [severity, setSeverity] = useState(null);
 	const [title, setTitle] = useState("");
@@ -10,13 +10,31 @@ export default function NewReport() {
 	const fileInputRef = useRef(null);
 	const [aimg, setAimg] = useState(null);
 
+	const [isOffline, setIsOffline] = useState(!navigator.onLine);
 	const [loading, setLoading] = useState(false);
+	useEffect(() => {
+		const handleOnline = () => setIsOffline(false);
+		const handleOffline = () => setIsOffline(true);
 
+		window.addEventListener("online", handleOnline);
+		window.addEventListener("offline", handleOffline);
+
+		return () => {
+			window.removeEventListener("online", handleOnline);
+			window.removeEventListener("offline", handleOffline);
+		};
+	}, []);
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		// Handle form submission
 	};
 
+	if (isOffline) {
+		alert(
+			"You are currently offline. Your report will be submitted when you are back online.",
+		);
+		return;
+	}
 	const handlePhotoUpload = () => {
 		fileInputRef.current.click();
 	};
@@ -96,129 +114,132 @@ export default function NewReport() {
 		window.location.href = "/"; // this does not work as it just reloads to the same page
 	};
 	return (
-		<div className="min-h-screen bg-[#0F172A] text-white px-4 overflow-y-auto">
-			{/* Header */}
-			<div className="flex items-center pt-6 pb-8">
-				{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-				<a href="/" className="mr-4 text-white">
-					<ArrowLeft className="w-6 h-6" />
-				</a>
-				<h1 className="flex-1 -ml-8 text-2xl font-semibold text-center">
-					New Report
-				</h1>
-			</div>
-
-			<form onSubmit={handleSubmit} className="space-y-6">
-				{/* Photo Upload */}
-				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-				<div
-					onClick={handlePhotoUpload}
-					className="border-2 border-dashed border-gray-600 rounded-xl aspect-[4/3] flex flex-col items-center justify-center bg-[#1E293B] bg-opacity-40 cursor-pointer"
-					style={{
-						backgroundImage: image ? `url(${image})` : "none",
-						backgroundSize: "cover",
-						backgroundPosition: "center",
-					}}
-				>
-					{!image && (
-						<>
-							<Camera className="w-12 h-12 mb-2 text-gray-500" />
-							<p className="text-lg text-gray-400">
-								Tap to take photo or upload
-							</p>
-						</>
-					)}
-					<input
-						type="file"
-						accept="image/*"
-						className="hidden"
-						ref={fileInputRef}
-						onChange={handleImageChange}
-						aria-label="Upload photo"
-					/>
+		<>
+			<OfflinePopup isOpen={isOffline} onClose={() => setIsOffline(false)} />
+			<div className="min-h-screen bg-[#0F172A] text-white px-4 overflow-y-auto">
+				{/* Header */}
+				<div className="flex items-center pt-6 pb-8">
+					{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+					<a href="/" className="mr-4 text-white">
+						<ArrowLeft className="w-6 h-6" />
+					</a>
+					<h1 className="flex-1 -ml-8 text-2xl font-semibold text-center">
+						New Report
+					</h1>
 				</div>
 
-				{/* Report Title */}
-				<div>
-					<input
-						type="text"
-						value={title}
-						onChange={(e) => setTitle(e.target.value)}
-						placeholder="Report Title"
-						className="w-full px-4 py-4 bg-[#1E293B] bg-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
-					/>
-				</div>
-
-				{/* Location */}
-				<div className="flex gap-3">
-					<input
-						type="text"
-						value={location}
-						onChange={(e) => setLocation(e.target.value)}
-						placeholder="Current Location"
-						className="flex-1 px-4 py-4 bg-[#1E293B] bg-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
-					/>
-					<button
-						type="button"
-						className="w-14 h-14 flex items-center justify-center bg-[#1E293B] bg-opacity-40 rounded-lg"
-						onClick={() => getCurrentLocation()}
+				<form onSubmit={handleSubmit} className="space-y-6">
+					{/* Photo Upload */}
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+					<div
+						onClick={handlePhotoUpload}
+						className="border-2 border-dashed border-gray-600 rounded-xl aspect-[4/3] flex flex-col items-center justify-center bg-[#1E293B] bg-opacity-40 cursor-pointer"
+						style={{
+							backgroundImage: image ? `url(${image})` : "none",
+							backgroundSize: "cover",
+							backgroundPosition: "center",
+						}}
 					>
-						<MapPin className="w-6 h-6 text-[#06B6D4]" />
-					</button>
-				</div>
+						{!image && (
+							<>
+								<Camera className="w-12 h-12 mb-2 text-gray-500" />
+								<p className="text-lg text-gray-400">
+									Tap to take photo or upload
+								</p>
+							</>
+						)}
+						<input
+							type="file"
+							accept="image/*"
+							className="hidden"
+							ref={fileInputRef}
+							onChange={handleImageChange}
+							aria-label="Upload photo"
+						/>
+					</div>
 
-				{/* Severity */}
-				<div className="space-y-3">
-					{/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
-					<label className="text-xl">Severity</label>
-					<div className="grid grid-cols-3 gap-3">
+					{/* Report Title */}
+					<div>
+						<input
+							type="text"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+							placeholder="Report Title"
+							className="w-full px-4 py-4 bg-[#1E293B] bg-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
+						/>
+					</div>
+
+					{/* Location */}
+					<div className="flex gap-3">
+						<input
+							type="text"
+							value={location}
+							onChange={(e) => setLocation(e.target.value)}
+							placeholder="Current Location"
+							className="flex-1 px-4 py-4 bg-[#1E293B] bg-opacity-40 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
+						/>
 						<button
 							type="button"
-							onClick={() => setSeverity("low")}
-							className={`py-3 rounded-lg text-center transition-colors ${
-								severity === "low"
-									? "bg-[#22c55e33] text-green-400"
-									: "bg-[#1E293B] bg-opacity-40 text-green-500"
-							}`}
+							className="w-14 h-14 flex items-center justify-center bg-[#1E293B] bg-opacity-40 rounded-lg"
+							onClick={() => getCurrentLocation()}
 						>
-							Low
-						</button>
-						<button
-							type="button"
-							onClick={() => setSeverity("medium")}
-							className={`py-3 rounded-lg text-center transition-colors ${
-								severity === "medium"
-									? "bg-[#eab30833] text-yellow-400"
-									: "bg-[#1E293B] bg-opacity-40 text-yellow-500"
-							}`}
-						>
-							Medium
-						</button>
-						<button
-							type="button"
-							onClick={() => setSeverity("high")}
-							className={`py-3 rounded-lg text-center transition-colors ${
-								severity === "high"
-									? "bg-[#ef444433] text-red-400"
-									: "bg-[#1E293B] bg-opacity-40 text-red-500"
-							}`}
-						>
-							High
+							<MapPin className="w-6 h-6 text-[#06B6D4]" />
 						</button>
 					</div>
-				</div>
 
-				{/* Submit Button */}
-				<div className="">
-					<button
-						type="submit"
-						onClick={handleSend}
-						className="w-full bg-[#06B6D4] rounded-md  text-lg font-medium py-2.5  hover:bg-opacity-90 transition-all mb-1 mt-2 text-[#E5F0FF]"
-					>
-						{loading ? "Submitting..." : "Submit Report"}
-					</button>
-				</div>
-			</form>
-		</div>
+					{/* Severity */}
+					<div className="space-y-3">
+						{/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
+						<label className="text-xl">Severity</label>
+						<div className="grid grid-cols-3 gap-3">
+							<button
+								type="button"
+								onClick={() => setSeverity("low")}
+								className={`py-3 rounded-lg text-center transition-colors ${
+									severity === "low"
+										? "bg-[#22c55e33] text-green-400"
+										: "bg-[#1E293B] bg-opacity-40 text-green-500"
+								}`}
+							>
+								Low
+							</button>
+							<button
+								type="button"
+								onClick={() => setSeverity("medium")}
+								className={`py-3 rounded-lg text-center transition-colors ${
+									severity === "medium"
+										? "bg-[#eab30833] text-yellow-400"
+										: "bg-[#1E293B] bg-opacity-40 text-yellow-500"
+								}`}
+							>
+								Medium
+							</button>
+							<button
+								type="button"
+								onClick={() => setSeverity("high")}
+								className={`py-3 rounded-lg text-center transition-colors ${
+									severity === "high"
+										? "bg-[#ef444433] text-red-400"
+										: "bg-[#1E293B] bg-opacity-40 text-red-500"
+								}`}
+							>
+								High
+							</button>
+						</div>
+					</div>
+
+					{/* Submit Button */}
+					<div className="">
+						<button
+							type="submit"
+							onClick={handleSend}
+							className="w-full bg-[#06B6D4] rounded-md  text-lg font-medium py-2.5  hover:bg-opacity-90 transition-all mb-1 mt-2 text-[#E5F0FF]"
+						>
+							{loading ? "Submitting..." : "Submit Report"}
+						</button>
+					</div>
+				</form>
+			</div>
+		</>
 	);
 }

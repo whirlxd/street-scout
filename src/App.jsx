@@ -5,6 +5,7 @@ import NewReport from "./components/createReport";
 import { BrowserRouter, Routes, Route } from "react-router";
 import NearMap from "./components/map-page";
 import ARView from "./components/ar-view";
+import Dashboard from "./components/Dashboard";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +26,7 @@ function App() {
 					<Route path="/reports/new" element={<NewReport />} />
 					<Route path="/map" element={<NearMap />} />
 					<Route path="ar" element={<ARView />} />
+					<Route path="/dashboard" element={<Dashboard />} />
 				</Routes>
 			</BrowserRouter>
 		</>
