@@ -4,6 +4,7 @@ import LoginPage from "./components/Login";
 import NewReport from "./components/createReport";
 import { BrowserRouter, Routes, Route } from "react-router";
 import NearMap from "./components/map-page";
+import ARView from "./components/ar-view";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,6 +24,7 @@ function App() {
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/reports/new" element={<NewReport />} />
 					<Route path="/map" element={<NearMap />} />
+					<Route path="ar" element={<ARView />} />
 				</Routes>
 			</BrowserRouter>
 		</>
