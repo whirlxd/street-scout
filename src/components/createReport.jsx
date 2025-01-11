@@ -48,7 +48,7 @@ export default function NewReport() {
 		}
 	};
 	const getCurrentLocation = () => {
-		setLocation("Sector 126 , Noida , Uttar Pradesh , India");
+		setLocation("Indian Institute of Technology , Hauz Khas, New Delhi");
 	};
 	const handleSend = async () => {
 		if (!title || !location || !severity || !image) {
