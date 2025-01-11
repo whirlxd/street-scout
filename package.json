@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite --port 3000",
+		"dev": "vite --port 5173",
 		"build": "vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
@@ -22,9 +22,6 @@
 		"@capacitor/status-bar": "6.0.2",
 		"@ionic/react": "^8.4.1",
 		"@supabase/supabase-js": "^2.47.10",
-		"aframe": "^1.6.0",
-		"aframe-ar": "^0.2.1-a",
-		"ar.js": "^2.2.2",
 		"date-fns": "^4.1.0",
 		"framer-motion": "^11.15.0",
 		"gl-matrix": "^3.4.3",
