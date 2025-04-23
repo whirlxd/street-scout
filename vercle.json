@@ -1,0 +1,22 @@
+{
+	"version": 2,
+	"name": "street-scout",
+	"builds": [
+		{
+			"src": "package.json",
+			"use": "@vercel/node"
+		}
+	],
+	"buildCommand": "npm run build",
+	"outputDirectory": "dist",
+	"routes": [
+		{
+			"src": "/(.*)",
+			"dest": "/"
+		}
+	],
+	"env": {
+		"VITE_SUPABASE_URL": "@vite_supabase_url",
+		"VITE_SUPABASE_KEY": "@vite_supabase_key"
+	}
+}
