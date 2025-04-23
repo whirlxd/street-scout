@@ -29,22 +29,22 @@ const DARK_THEME =
 const PINS = [
 	{
 		id: 1,
-		latitude: 28.54511796387612,
-		longitude: 77.19317041696264,
+		latitude: 28.586215,
+		longitude: 77.3404,
 		color: "#EF4444",
 		desc: "Broken Street Light",
 	},
 	{
 		id: 2,
-		latitude: 28.544738102023942,
-		longitude: 77.19254388659553,
+		latitude: 28.585348,
+		longitude: 77.337322,
 		color: "#F59E0B",
 		desc: "Damaged Pavement",
 	},
 	{
 		id: 3,
-		latitude: 28.545132829282217,
-		longitude: 77.1918608264211,
+		latitude: 28.588144,
+		longitude: 77.342231,
 		color: "#10B981",
 		desc: "Fallen Tree Blocking Road",
 	},
@@ -85,8 +85,8 @@ function CustomMarker({ color, position, popupText }) {
 export default function MapPage() {
 	const [mapReady, setMapReady] = useState(false);
 	const [viewState, setViewState] = useState({
-		center: [28.54507575831948, 77.19268230066656],
-		zoom: 20,
+		center: [28.585348, 77.337322],
+		zoom: 16,
 	});
 
 	useEffect(() => {
